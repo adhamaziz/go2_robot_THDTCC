@@ -1,0 +1,15 @@
+# ROS 2 build & install directories
+build/
+install/
+log/
+
+# Specific logs and steps
+nav_slam.log
+step_follow.txt
+
+# Vendor packages (Ignored to prevent nested git repository conflicts)
+src/m-explore-ros2/
+
+# Optional: Ignore saved maps if you don't want them version-controlled
+# *.pgm
+# *.yaml

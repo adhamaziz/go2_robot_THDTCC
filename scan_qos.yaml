@@ -1,0 +1,7 @@
+/**:
+  ros__parameters:
+    qos_overrides:
+      /scan:
+        publisher:
+          reliability: reliable
+          durability: volatile

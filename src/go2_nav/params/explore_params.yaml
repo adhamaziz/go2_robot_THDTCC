@@ -1,0 +1,15 @@
+explore_node:
+  ros__parameters:
+    use_sim_time: false
+    robot_base_frame: "base_link"
+    costmap_topic: "map"
+    costmap_updates_topic: "map_updates"
+    visualize: true
+    planner_frequency: 0.3          # was 0.1 — replan a bit more often
+    progress_timeout: 45.0
+    potential_scale: 3.0            # was 1.0 — weight distance more
+    orientation_scale: 0.0
+    gain_scale: 1.0                 # was 3.0 — weight frontier size less
+    min_frontier_size: 0.75         # was 0.4 — ignore tiny/noisy frontiers
+    return_to_init: false
+    transform_tolerance: 1.5
