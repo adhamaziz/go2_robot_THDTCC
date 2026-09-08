@@ -142,7 +142,7 @@ controller_server:
       temperature: 0.3
       gamma: 0.015
       prune_distance: 1.5
-      transform_tolerance: 0.5
+      transform_tolerance: 1.0
       motion_model: "Omni"
 
       visualize: true
@@ -239,7 +239,7 @@ local_costmap:
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 3.0
-        inflation_radius: 0.25
+        inflation_radius: 0.23
 
 global_costmap:
   global_costmap:
@@ -257,7 +257,7 @@ global_costmap:
       plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
       static_layer:
         plugin: "nav2_costmap_2d::StaticLayer"
-        map_subscribe_transient_local: false
+        map_subscribe_transient_local: true
         map_topic: /map
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
@@ -272,7 +272,7 @@ global_costmap:
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 3.0
-        inflation_radius: 0.25
+        inflation_radius: 0.30
 
 planner_server:
   ros__parameters:

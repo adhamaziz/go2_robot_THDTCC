@@ -39,6 +39,8 @@ def generate_launch_description():
             'params_file': params_file,
             'namespace': namespace,
             'autostart': 'true'
+            # 'use_composition': 'True',
+            # 'container_name': 'nav2_container'
         }.items()
     )
 

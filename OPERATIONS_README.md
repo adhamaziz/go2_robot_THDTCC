@@ -121,14 +121,14 @@ rs-enumerate-devices
 ```bash
 cd ~/go2_yolo_docker
 ./launch.sh --person          # or ./launch.sh for all 80 COCO classes
+./run_yolo.sh # for the fire extinguisher fine tuned model
 ```
 
 ### 3.7 View results (laptop)
 ```bash
-ros2 run rqt_image_view rqt_image_view /go2/yolo/image_annotated
+ros2 run rqt_image_view rqt_image_view /go2/yolo/image_annotated/compressed
 # or rviz2, Add -> By topic -> /go2/yolo/image_annotated -> Image
 ```
-
 ---
 
 ## 4. YOLO Detection Pipeline (Docker, on the Go2's Jetson)
@@ -154,10 +154,11 @@ builds `rmw_cyclonedds_cpp` from source (to match the Go2's native DDS vendor).
 ./launch.sh --classes 0,2      # person + car
 ./launch.sh --conf 0.6 --person
 ./launch.sh --build            # force a rebuild first, then launch
+./run_yolo.sh # for the fire extinguisher fine tuned model
 ```
 
 Publishes:
-- `/go2/yolo/image_annotated` (`sensor_msgs/Image`) -- for viewing
+- `/go2/yolo/image_annotated/compressed` (`sensor_msgs/Image`) -- for viewing
 - `/go2/yolo/detections` (`vision_msgs/Detection2DArray`) -- structured boxes/classes/scores
 
 COCO class IDs if you want other filters: `0`=person, `1`=bicycle, `2`=car,
