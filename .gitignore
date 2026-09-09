@@ -10,6 +10,17 @@ step_follow.txt
 # Vendor packages (Ignored to prevent nested git repository conflicts)
 src/m-explore-ros2/
 
-# Optional: Ignore saved maps if you don't want them version-controlled
-# *.pgm
-# *.yaml
+# Ignore all maps and launch_notuseyet directories
+maps/
+launch_notuseyet/
+
+# Python & virtual environment
+.venv/
+__pycache__/
+*.pyc
+
+# Benchmark outputs & ROS graph dumps
+*.png
+*.pdf
+*.gv
+*.csv
