@@ -131,7 +131,7 @@ controller_server:
       vx_max: 0.40
       vx_min: -0.20
       vy_max: 0.25
-      wz_max: 0.5
+      wz_max: 0.8   # was 0.5 -- matched to nav2_params.yaml's fix, see OPERATIONS_README section 14
 
       ax_max: 1.5
       ax_min: -1.5
@@ -314,9 +314,9 @@ behavior_server:
     transform_tolerance: 0.5
     use_sim_time: False
     simulate_ahead_time: 2.0
-    max_rotational_vel: 0.6
+    max_rotational_vel: 0.8
     min_rotational_vel: 0.2
-    rotational_acc_lim: 2.0
+    rotational_acc_lim: 2.5
 
 velocity_smoother:
   ros__parameters:
@@ -324,10 +324,10 @@ velocity_smoother:
     smoothing_frequency: 20.0
     scale_velocities: False
     feedback: "OPEN_LOOP"
-    max_velocity: [0.4, 0.25, 0.5]
-    min_velocity: [-0.2, -0.25, -0.5]
-    max_accel: [1.5, 1.0, 2.0]
-    max_decel: [-1.5, -1.0, -2.0]
+    max_velocity: [0.4, 0.25, 0.8]
+    min_velocity: [-0.2, -0.25, -0.8]
+    max_accel: [1.5, 1.0, 2.5]
+    max_decel: [-1.5, -1.0, -2.5]
     odom_topic: "odom"
     odom_duration: 0.1
     deadband_velocity: [0.0, 0.0, 0.0]

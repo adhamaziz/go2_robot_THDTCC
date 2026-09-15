@@ -1,0 +1,33 @@
+{
+  mode: "peer",
+
+  listen: {
+    endpoints: []
+  },
+
+  connect: {
+    endpoints: ["udp/192.168.123.18:7447"]
+  },
+
+  scouting: {
+    multicast: {
+      enabled: false
+    }
+  },
+
+  transport: {
+    link: {
+      tx: {
+        lease: 10000,
+        keep_alive: 4
+      }
+    }
+  },
+
+  plugins: {
+    ros2dds: {
+      nodename: "zenoh_bridge_pc",
+      domain: 1
+    }
+  }
+}

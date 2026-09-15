@@ -97,8 +97,8 @@ controller_server:
     use_sim_time: False
     controller_frequency: 10.0
     transform_tolerance: 0.5
-    min_x_velocity_threshold: 0.001
-    min_y_velocity_threshold: 0.001
+    min_x_velocity_threshold: 0.01
+    min_y_velocity_threshold: 0.01
     min_theta_velocity_threshold: 0.001
     failure_tolerance: 0.3
     odom_topic: "odom"
@@ -113,8 +113,8 @@ controller_server:
 
     general_goal_checker:
       plugin: "nav2_controller::SimpleGoalChecker"
-      xy_goal_tolerance: 0.25
-      yaw_goal_tolerance: 0.17
+      xy_goal_tolerance: 0.15
+      yaw_goal_tolerance: 0.20
       stateful: true
 
     FollowPath:
@@ -128,7 +128,7 @@ controller_server:
       vx_max: 0.40
       vx_min: -0.20
       vy_max: 0.15
-      wz_max: 0.5
+      wz_max: 1.6   # confirmed working on hardware -- was 0.5 originally, too low for orbit heading changes
 
       # Explicit Acceleration & Deceleration limits
       ax_max: 1.5
@@ -180,12 +180,12 @@ controller_server:
       PathAlignCritic:
         enabled: true
         cost_power: 1
-        cost_weight: 15.0
+        cost_weight: 7.0
         max_path_occupancy_ratio: 0.07
         trajectory_point_step: 3
         threshold_to_consider: 0.5
         offset_from_furthest: 20
-        use_path_orientations: false
+        use_path_orientations: false   # CHANGED -- was false. Required for the new FollowPath-based orbit to actually hold heading on the target throughout the sweep, instead of only tracking direction of travel. Without this, the per-point orientations in the orbit path are ignored.
 
       PathFollowCritic:
         enabled: true
@@ -312,9 +312,9 @@ behavior_server:
     transform_tolerance: 0.5
     use_sim_time: False
     simulate_ahead_time: 2.0
-    max_rotational_vel: 0.6
+    max_rotational_vel: 1.6   # confirmed working on hardware
     min_rotational_vel: 0.2
-    rotational_acc_lim: 2.0
+    rotational_acc_lim: 2.5
 
 velocity_smoother:
   ros__parameters:
@@ -322,10 +322,10 @@ velocity_smoother:
     smoothing_frequency: 20.0
     scale_velocities: False
     feedback: "OPEN_LOOP"
-    max_velocity: [0.4, 0.25, 0.5]
-    min_velocity: [-0.2, -0.25, -0.5]
-    max_accel: [1.5, 1.0, 2.0]
-    max_decel: [-1.5, -1.0, -2.0]
+    max_velocity: [0.4, 0.25, 1.6]    # confirmed working on hardware
+    min_velocity: [-0.2, -0.25, -1.6]
+    max_accel: [1.5, 1.0, 2.5]
+    max_decel: [-1.5, -1.0, -2.5]
     odom_topic: "odom"
     odom_duration: 0.1
     deadband_velocity: [0.0, 0.0, 0.0]

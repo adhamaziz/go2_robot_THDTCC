@@ -79,6 +79,7 @@ class SwapStateMachineReal(Node):
         self.declare_parameter('nbv_orbit_radius_m', 1.0)
         self.declare_parameter('nbv_orbit_num_waypoints', 6)
         self.declare_parameter('nbv_waypoint_timeout_sec', 15.0)
+        self.declare_parameter('orbit_dwell_sec', 2.0)  # idle time at each orbit stop after facing the target, before moving to the next -- gives ArUco a real chance to see the tag, not just an instant
         self.declare_parameter('approach_timeout_sec', 40.0)
         self.declare_parameter('revisit_distance_m', 1.0)
 
@@ -97,6 +98,7 @@ class SwapStateMachineReal(Node):
         # committing to a real Nav2 approach goal.
         self.declare_parameter('yolo_confirm_count', 3)
         self.declare_parameter('yolo_confirm_radius_m', 0.3)
+        self.declare_parameter('max_target_distance_m', 4.0)  # sanity backstop: a real depth-camera detection should never claim the object is further than this from the robot's own current position. Catches the case where the robot's own map-frame localization is momentarily wrong (e.g. under heavy CPU load) even though the camera's raw distance reading was fine -- the corruption happens in the camera-to-map TF conversion, not the depth measurement itself.
 
         self.standoff = self.get_parameter('standoff_distance_m').value
         self.approach_standoff = self.get_parameter('approach_standoff_m').value
@@ -104,6 +106,7 @@ class SwapStateMachineReal(Node):
         self.orbit_radius = self.get_parameter('nbv_orbit_radius_m').value
         self.orbit_num_wp = self.get_parameter('nbv_orbit_num_waypoints').value
         self.waypoint_timeout = self.get_parameter('nbv_waypoint_timeout_sec').value
+        self.orbit_dwell_sec = self.get_parameter('orbit_dwell_sec').value
         self.approach_timeout = self.get_parameter('approach_timeout_sec').value
         self.revisit_thresh = self.get_parameter('revisit_distance_m').value
         self.target_frame = self.get_parameter('target_frame').value
@@ -111,6 +114,7 @@ class SwapStateMachineReal(Node):
         self.camera_frame = self.get_parameter('camera_frame').value
         self.yolo_confirm_count = self.get_parameter('yolo_confirm_count').value
         self.yolo_confirm_radius = self.get_parameter('yolo_confirm_radius_m').value
+        self.max_target_distance = self.get_parameter('max_target_distance_m').value
         self._yolo_confirm_buffer = []
 
         self.tf_buffer = Buffer()
@@ -122,6 +126,7 @@ class SwapStateMachineReal(Node):
         self.busy = False
         self.orbit_waypoints = []
         self.orbit_index = 0
+        self._orbit_dwell_timer = None
         self.orbit_stopped = False
         self.current_goal_handle = None
         self.timeout_timer = None
@@ -343,6 +348,28 @@ class SwapStateMachineReal(Node):
         avg_y = sum(p[1] for p in self._yolo_confirm_buffer) / len(self._yolo_confirm_buffer)
         self._yolo_confirm_buffer = []
 
+        # Sanity backstop: reject if this is further from the robot's own
+        # current position than a real depth-camera detection plausibly
+        # could be. This specifically catches map-frame corruption -- the
+        # camera's raw distance reading can be perfectly fine while the
+        # camera-to-map TF conversion is wrong because the robot's own AMCL
+        # localization was momentarily degraded (e.g. under heavy CPU load).
+        # Confirmed on hardware: this produced targets landing "off the
+        # global costmap" entirely, wasting a full approach+orbit cycle on
+        # a coordinate that was never real.
+        rx, ry = self._get_robot_xy()
+        dist_from_robot = math.hypot(avg_x - rx, avg_y - ry)
+        if dist_from_robot > self.max_target_distance:
+            self.get_logger().error(
+                f'YOLO target ({avg_x:.2f}, {avg_y:.2f}) is {dist_from_robot:.2f}m from the '
+                f'robot\'s own current position ({rx:.2f}, {ry:.2f}) -- further than any real '
+                f'depth-camera detection should be (max_target_distance_m={self.max_target_distance}). '
+                f'Rejecting rather than sending a likely-corrupted goal. This usually means the '
+                f'robot\'s own localization was momentarily wrong, not that the object moved -- '
+                f'check system load (htop) if this keeps happening.'
+            )
+            return
+
         self.busy = True
         self._approach_retry_count = 0
         self.get_logger().info(
@@ -439,7 +466,22 @@ class SwapStateMachineReal(Node):
             self._dispatch_next_orbit_waypoint()
             return
 
-        self._rotate_to_heading(facing_inward, self._dispatch_next_orbit_waypoint)
+        self._rotate_to_heading(facing_inward, self._start_orbit_dwell)
+
+    def _start_orbit_dwell(self):
+        if self.orbit_stopped:
+            return
+        if self.orbit_dwell_sec <= 0:
+            self._dispatch_next_orbit_waypoint()
+            return
+
+        def _fire_once():
+            self._orbit_dwell_timer.cancel()
+            self._orbit_dwell_timer = None
+            if not self.orbit_stopped:
+                self._dispatch_next_orbit_waypoint()
+
+        self._orbit_dwell_timer = self.create_timer(self.orbit_dwell_sec, _fire_once)
 
     def aruco_poses_cb(self, msg: PoseArray):
         self._latest_aruco_poses = msg.poses
@@ -465,6 +507,9 @@ class SwapStateMachineReal(Node):
             if self.current_goal_handle is not None:
                 self.current_goal_handle.cancel_goal_async()
             self._cancel_timeout_timer()
+            if self._orbit_dwell_timer is not None:
+                self._orbit_dwell_timer.cancel()
+                self._orbit_dwell_timer = None
             self.start_precise_inspect(marker_id, pose, self._latest_aruco_header)
             return
 
