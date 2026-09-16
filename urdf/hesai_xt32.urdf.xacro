@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<robot name="hesai_xt32" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Fixed mount from robot base to the Hesai base link -->
+  <!-- Change base_link to whatever your robot's parent link is -->
+  <!--joint name="base_link_to_hesai" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <parent link="base_link"/>
+    <child link="hesai_base"/>
+  </joint-->
+
+  
+  <link name="hesai_lidar">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://go2_description/dae/xt32.dae" />
+      </geometry>
+    </visual>
+
+    <inertial>
+      <origin xyz="-0.015e-3 0.0 37.494e-3" rpy="0 0 0" />
+      <mass value="0.807" />
+      <inertia ixx="886.81e-6" ixy="5.802e-11" ixz="-0.34e-6"
+               iyy="898.12e-6" iyz="-0.014e-6" izz="1004.287e-6" />
+    </inertial>
+
+    <collision>
+      <origin xyz="0 0 38.0e-3"/>
+      <geometry>
+        <cylinder radius="51.500e-3" length="76.0e-3" />
+      </geometry>
+    </collision>
+  </link>
+
+
+  
+
+
+  <joint name="base_link_to_hesai_base" type="fixed">
+
+    <!--origin rpy="2.879 0.0 1.5705" xyz="0.25 -0.038 -0.03"-->
+    <origin xyz="0.155 0.005 0.08" rpy="0 0 1.5705" />
+    <parent link="base_link"/>
+    <child link="hesai_lidar"/>
+  </joint>
+
+
+
+</robot>

@@ -3,10 +3,15 @@
 Stephen Brawner (brawner@gmail.com) 
      Commit Version: 1.6.0-4-g7f85cfe  Build Version: 1.6.7995.38578
      For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
-<robot
-  name="go2_description">
-  <link
-    name="base_link">
+     
+ 
+<robot xmlns:xacro="http://wiki.ros.org/xacro" name="go2_description">
+  <xacro:arg name="prefix" default=""/>
+  <xacro:include filename="$(find go2_description)/urdf/hesai_xt32.urdf.xacro"/>
+  <xacro:include filename="$(find go2_description)/urdf/realsense_d435i.urdf.xacro"/>
+ 
+   
+  <link name="base_link">
     <inertial>
       <origin
         xyz="0.021112 0 -0.005366"
@@ -42,6 +47,15 @@ Stephen Brawner (brawner@gmail.com)
       </geometry>
     </collision>
   </link>
+
+  <joint name="base_footprint_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="base_footprint"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+  <link name="base_footprint">
+  </link>
+
   <link
     name="Head_upper">
     <inertial>
@@ -173,14 +187,11 @@ Stephen Brawner (brawner@gmail.com)
       effort="23.7"
       velocity="30.1" />
   </joint>
-  <link
-    name="FL_thigh">
+
+  <link name="FL_thigh">
     <inertial>
-      <origin
-        xyz="-0.00374 -0.0223 -0.0327"
-        rpy="0 0 0" />
-      <mass
-        value="1.152" />
+      <origin xyz="-0.00374 -0.0223 -0.0327" rpy="0 0 0" />
+      <mass value="1.152" />
       <inertia
         ixx="0.00584"
         ixy="8.72E-05"

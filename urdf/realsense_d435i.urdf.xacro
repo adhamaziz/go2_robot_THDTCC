@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<robot name="realsense_d435i" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Stub link only - no visual/collision needed here. The RealSense driver's
+       own /tf_static publishes everything from camera_link outward
+       (camera_link -> camera_color_frame -> camera_color_optical_frame, etc).
+       This file's only job is to give camera_link a parent so the two
+       previously-disconnected TF trees become one. -->
+  <link name="camera_link"/>
+
+  <!-- PLACEHOLDER offset - mounted on the head, same z-height as the Hesai
+       lidar (z=0.08, matching hesai_xt32.urdf.xacro's origin), x/y guessed
+       near the Head_upper joint (x=0.285) since it's head-mounted, not
+       mid-back like the lidar. Replace xyz/rpy with a real tape-measure
+       reading from base_link's origin to the camera's optical housing
+       before trusting any distances this produces. -->
+  <joint name="base_link_to_camera" type="fixed">
+    <origin xyz="0.285 0.0 0.08" rpy="0 0 0"/>
+    <parent link="base_link"/>
+    <child link="camera_link"/>
+  </joint>
+
+</robot>

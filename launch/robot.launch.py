@@ -49,7 +49,7 @@ def generate_launch_description():
     declared_arguments.append(
         DeclareLaunchArgument(
             'use_sim_time',
-            default_value='True',
+            default_value='False',
             description='Use simulation/Gazebo clock if true',
         )
     )
@@ -68,8 +68,13 @@ def generate_launch_description():
         ]
     )
 
-    robot_description_param = launch_ros.descriptions.ParameterValue(robot_description_content,
-                                                                     value_type=str)
+    robot_description_param = launch_ros.descriptions.ParameterValue(robot_description_content, value_type=str)
+
+    ekf_config = PathJoinSubstitution([
+        FindPackageShare('go2_driver'),
+        'config',
+        'ekf_odom.yaml'
+    ])
 
     nodes.append(Node(
         package='robot_state_publisher',
@@ -84,5 +89,49 @@ def generate_launch_description():
             }],
         )
     )
+
+    '''nodes.append(Node(
+        package='pointcloud_to_laserscan',
+        executable='pointcloud_to_laserscan_node',
+        name='pointcloud_to_laserscan',
+        remappings=[
+                ('cloud_in', '/best_points'),
+                ('scan', '/best_scan'),
+        ],
+        parameters=[{
+                'target_frame': 'base_link',
+                'transform_tolerance': 0.01,
+                'min_height': -0.1,
+                'max_height': 0.1,
+                'angle_min': -3.14159,
+                'angle_max': 3.14159,
+                'range_min': 0.1,
+                'range_max': 30.0,
+                'use_inf': True,
+            }]
+
+    ))'''
+
+    '''nodes.append(Node(
+        package='robot_localization',
+        name='base_link_to_odom_ekf',
+        executable='ekf_node',
+        output ='screen',
+        parameters=[ekf_config, {'use_sim_time': use_sim_time}],
+        )
+    )'''
+    
+    
+    # Go2 URDF connection (base_footprint -> base_link)  
+    # nodes.append(Node(
+    #     package='tf2_ros',
+    #     executable='static_transform_publisher',
+    #     name='base_footprint_to_base_link_tf_node',
+    #     arguments=[
+    #         '--x', '0', '--y', '0', '--z', '0',
+    #         '--roll', '0', '--pitch', '0', '--yaw', '0',
+    #         '--frame-id', 'base_footprint',
+    #         '--child-frame-id', 'base_link' ],
+    # ))
 
     return LaunchDescription(declared_arguments + nodes)
