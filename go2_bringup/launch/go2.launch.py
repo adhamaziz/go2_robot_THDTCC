@@ -107,7 +107,7 @@ def generate_launch_description():
                 'transform_tolerance': 0.2,
                 'min_height': -0.10,
                 'max_height': 0.70,
-                'range_min': 0.35,
+                'range_min': 0.45,
                 'range_max': 15.0,
                 'angle_min': -3.1459265,
                 'angle_max': 3.1459265,
