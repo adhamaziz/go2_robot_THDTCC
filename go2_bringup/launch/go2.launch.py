@@ -116,7 +116,7 @@ def generate_launch_description():
                 'use_inf': True,
                 'use_sim_time': False,
             },
-            '/home/unitree/go2_ws/src/go2_robot/scan_qos.yaml'
+            '/home/unitree/go2_ws/src/go2_robot/go2_bringup/config/scan_qos.yaml'
         ],
     )
 
